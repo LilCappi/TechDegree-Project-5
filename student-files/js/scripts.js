@@ -1,20 +1,17 @@
+const container = document.querySelector('.gallery');
+
 const randomUserUrl = 'https://randomuser.me/api/?results=12';
+let users = [];
 
-function fetchData(url) {
-    return fetch(url)
-            .then (res => res.json())
-            .catch(error => console.log('Something went wrong fetching data.', error))
+async function getUsers(url) {
+    const response = await fetch(url);
+    const userData = await response.json();
+    users = userData.results
+    displayUsers(users);
 }
 
-async function displayUsers() {
-    const userData = await fetchData(randomUserUrl);
-    console.log(userData);
-    showUsers(userData.results);
-}
-
-function showUsers(array) {
-    array.forEach(element => {
-        const elementHTML = `
+function displayUsers(array) {
+    const arrayElements = array.map((element) => `
             <div class="card">
                 <div class="card-img-container">
                     <img class="card-img" src="${element.picture.large}" alt="profile picture">
@@ -25,9 +22,17 @@ function showUsers(array) {
                     <p class="card-text cap">${element.location.city}, ${element.location.state}</p>
                 </div>
             </div>
-        `;
-        document.querySelector('.gallery').insertAdjacentHTML('beforeend', elementHTML);
-    });
-}
+        `)
+    .join('');
+    container.insertAdjacentHTML('beforeend', arrayElements);
+};
 
-displayUsers();
+container.addEventListener('click', (e) => {
+    const selectedDiv = e.target.closest('.card-info-container');
+    if (!selectedDiv) return;
+
+    const userDataset = selectedDiv.dataset.name;
+    console.log(userDataset);
+})
+
+getUsers(randomUserUrl);
